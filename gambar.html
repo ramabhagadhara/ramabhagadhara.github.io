@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Aplikasi Kompresi Gambar</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .input-container {
+      margin-bottom: 10px;
+    }
+
+    .input-container label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .input-container input[type="number"] {
+      width: 100px;
+    }
+
+    #compressButton {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #previewImage {
+      max-width: 100%;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Aplikasi Kompresi Gambar</h1>
+
+  <div class="input-container">
+    <label for="inputImage">Pilih Gambar:</label>
+    <input type="file" id="inputImage" accept="image/*">
+  </div>
+
+  <div class="input-container">
+    <label for="maxWidthInput">Lebar Maksimum (px):</label>
+    <input type="number" id="maxWidthInput" value="500" min="100" max="1000" step="100">
+  </div>
+
+  <div class="input-container">
+    <label for="maxHeightInput">Tinggi Maksimum (px):</label>
+    <input type="number" id="maxHeightInput" value="500" min="100" max="1000" step="100">
+  </div>
+
+  <button id="compressButton">Kompresi Gambar</button>
+  <button id="removeButton">Hapus Gambar</button>
+
+
+  <img id="previewImage" alt="Preview Gambar">
+
+  <script>
+    document.getElementById('compressButton').addEventListener('click', compressImage);
+
+function compressImage() {
+  const input = document.getElementById('inputImage');
+  const file = input.files[0];
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.src = e.target.result;
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const maxWidth = document.getElementById('maxWidthInput').value;
+        const maxHeight = document.getElementById('maxHeightInput').value;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height *= maxWidth / width;
+          width = maxWidth;
+        }
+
+        if (height > maxHeight) {
+          width *= maxHeight / height;
+          height = maxHeight;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedDataURL = canvas.toDataURL('image/jpeg', 0.7);
+
+        const previewImage = document.getElementById('previewImage');
+        previewImage.src = compressedDataURL;
+
+        // Mengaktifkan kembali input untuk mengatur ukuran gambar
+        document.getElementById('maxWidthInput').disabled = false;
+        document.getElementById('maxHeightInput').disabled = false;
+      }
+    }
+
+    reader.readAsDataURL(file);
+  }
+}
+
+// Menambahkan event listener untuk menghapus gambar yang telah dikompresi
+document.getElementById('removeButton').addEventListener('click', removeCompressedImage);
+
+function removeCompressedImage() {
+  const previewImage = document.getElementById('previewImage');
+  previewImage.src = '';
+
+  // Mengaktifkan kembali input untuk mengatur ukuran gambar
+  document.getElementById('maxWidthInput').disabled = false;
+  document.getElementById('maxHeightInput').disabled = false;
+}
+
+
+  </script>
+</body>
+</html>
